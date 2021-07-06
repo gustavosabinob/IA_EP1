@@ -1,17 +1,8 @@
-#classe responsável pela implementação, treinamento e teste do algoritmo MLP
-
-from sklearn.neural_network import MLPClassifier
-
-# X = [[0., 0.], [1., 1.]]
-# y = [0, 1]
-# clf = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
-# clf.fit(X, y)
-# MLPClassifier(alpha=1e-05, hidden_layer_sizes=(5, 2), random_state=1, solver='lbfgs')
-
 """
     Classe responsavel por por controlar toda a execução do algoritmo Multi-layer Perceptron, tanto para sua fase
     treinamento, quanto para sua fase de teste
 """
+from sklearn.neural_network import MLPClassifier  # implementa o MLP
 from sklearn.model_selection import train_test_split  # define os conjuntos de treino e teste
 import sklearn.metrics as metrics
 
@@ -27,15 +18,34 @@ np.set_printoptions(threshold=sys.maxsize)
 
 start = datetime.datetime.now()
 
-train_df = pd.read_csv('data\\caracteres-limpo.csv', header=None)
-test_df = pd.read_csv('data\\caracteres-ruido.csv', header=None)
-test2_df = pd.read_csv('data\\caracteres_ruido20.csv', header=None)
-#train_targets = pd.read_csv('folds\\train_targets.csv', header=None)
-#test_targets = pd.read_csv('folds\\test_targets.csv', header=None)
+train_df = pd.read_csv('folds\\train_df.csv', header=None)
+test_df = pd.read_csv('folds\\test_df.csv', header=None)
+train_targets = pd.read_csv('folds\\train_targets.csv', header=None)
+test_targets = pd.read_csv('folds\\test_targets.csv', header=None)
+
+
+def generate_csv():
+    ionosphere_df = pd.read_csv('ionosphere.data', header=None)
+    # # dividir o dataset
+    ionosphere_x_df = ionosphere_df.drop(labels=34, axis=1)
+    ionosphere_y_df = ionosphere_df.iloc[:, -1].to_frame()
+    ionosphere_y_df = ionosphere_y_df.replace('g', 1).replace('b', 0)
+    # usando holdout 70-30
+
+    # o metodo train_test_split do sklearn divide o dataset inicial em folds de treino e teste
+    # estamos gravando esse resultado em csvs para que os valores não mudem a cada execucao do codigo
+
+    train_df, test_df, train_targets, test_targets = train_test_split(ionosphere_x_df, ionosphere_y_df, test_size=0.3,
+                                                                      stratify=ionosphere_y_df)
+    train_df.to_csv('folds\\train_df.csv', index=False, header=False)
+    test_df.to_csv('folds\\test_df.csv', index=False, header=False)
+    train_targets.to_csv('folds\\train_targets.csv', index=False, header=False)
+    test_targets.to_csv('folds\\test_targets.csv', index=False, header=False)
+
 
 def init_mlp(neuronio, taxa, epoca, early_stopping=False):
     # taxa de aprendizado adaptativa, talvez tenha que mudar porconta da estrategia em grade
-    config_name =f"{neuronio}_{taxa}_{epoca}_es_{early_stopping}"
+    config_name = f"{neuronio}_{taxa}_{epoca}_es_{early_stopping}"
     #sys.stdout = open(f"results\\{config_name}", "w")
 
     mlp_model = MLPClassifier(hidden_layer_sizes=neuronio,
@@ -47,23 +57,27 @@ def init_mlp(neuronio, taxa, epoca, early_stopping=False):
                               learning_rate_init=taxa,
                               tol=1e-07,
                               early_stopping=early_stopping)
-    mlp_model.fit(train_df,train_df)
+    mlp_model.fit(train_df, train_targets)
 
     print('PARAMETROS DE INICIALIZACAO DA REDE\nNUMERO DE NEURONIOS ')
-    print(f'Camada de Entrada: ',neuronio)
+    print(f'Camada de Entrada: 34')
     print(f'Camada Escondida: {mlp_model.hidden_layer_sizes}')
     print(f'Camada de Saida: {mlp_model.n_outputs_}\n')
 
     print('--- PARAMETROS DE CONFIGURACAO DA REDE ---')
-    #print(f'Numero de Epocas: {mlp_model.n_iter_}')
+    print(f'Numero de Epocas: {mlp_model.n_iter_}')
     print(f'Taxa de Aprendizado: {mlp_model.learning_rate}')
     print(f'Taxa de Aprendizado Inicial: {mlp_model.learning_rate_init}')
 
     print('METRICAS\n')
+    # predictions_proba = mlp_model.predict_proba(test_df)
     predictions = mlp_model.predict(test_df)
     print("RESULTADOS:\n")
     print(predictions)
+    # accuracy = metrics.accuracy_score(test_targets, predictions)
+    # print(f'ACURACIA: {accuracy}\n')
 
+    #sys.stdout.close()
     return mlp_model
 
 
@@ -77,7 +91,7 @@ def generate_loss_graph(mlp, graph_title):
 def generate_final_graphs(predictions):
     # Confusion Matrix
     fig, ax = plt.subplots()
-    sns.heatmap(metrics.confusion_matrix(test_df, predictions), annot=True,
+    sns.heatmap(metrics.confusion_matrix(test_targets, predictions), annot=True,
                 ax=ax, fmt='d', cmap='Reds')
     ax.set_title("Matriz de Confusão", fontsize=18)
     ax.set_ylabel("Rótulo Verdadeiro")
@@ -86,7 +100,7 @@ def generate_final_graphs(predictions):
     plt.savefig(f"results\\graphs\\best_mlp_confusion_matrix.png")
 
     # Precision x Recall
-    precisions, recalls, thresholds = metrics.precision_recall_curve(test_df, predictions)
+    precisions, recalls, thresholds = metrics.precision_recall_curve(test_targets, predictions)
     fig2, ax2 = plt.subplots(figsize=(12, 3))
     plt.plot(thresholds, precisions[:-1], 'b--', label='Precisão')
     plt.plot(thresholds, recalls[:-1], 'g-', label='Revocação')
@@ -97,7 +111,7 @@ def generate_final_graphs(predictions):
     plt.savefig(f"results\\graphs\\best_mlp_precision_recall.png")
 
     #  ROC
-    fpr, tpr, thresholds = metrics.roc_curve(test_df, predictions)
+    fpr, tpr, thresholds = metrics.roc_curve(test_targets, predictions)
     fig, ax = plt.subplots(figsize=(12, 4))
     plt.plot(fpr, tpr, linewidth=2, label='Regressão Logística')
     plt.plot([0, 1], [0, 1], 'k--')
@@ -109,10 +123,10 @@ def generate_final_graphs(predictions):
     plt.savefig(f"results\\graphs\\best_mlp_roc_curve.png")
 
     # Acurácia, comparativo com a acuracia do classification_report
-    accuracy = metrics.accuracy_score(test_df, predictions)
+    accuracy = metrics.accuracy_score(test_targets, predictions)
     print(f'ACURACIA: {accuracy}\n')
 
-    report = metrics.classification_report(test_df, best_mlp_predictions)
+    report = metrics.classification_report(test_targets, best_mlp_predictions)
     print(f'Relatório de Classificação\n{report}\n')
 
 
@@ -123,7 +137,7 @@ max_accuracy = 0
 best_config = []
 best_mlp = None
 
-neuronios = [21]
+neuronios = [3]
 taxas = [0.3]
 epocas = [300]
 
@@ -132,11 +146,12 @@ for neuronio in neuronios:
         for epoca in epocas:
             mlp_model = init_mlp(neuronio, taxa, epoca)
             predictions = mlp_model.predict(test_df)
-            accuracy = metrics.accuracy_score(test_df, predictions)
+            accuracy = metrics.accuracy_score(test_targets, predictions)
             if accuracy > max_accuracy:
                 max_accuracy = accuracy
                 best_config.extend([neuronio, taxa, epoca])
                 best_mlp = mlp_model
+
 
 graph_title = f"melhor_mlp_gráfico_erro_{best_config[0]}_{best_config[1]}_{best_config[2]}"
 #generate_loss_graph(best_mlp, graph_title)
