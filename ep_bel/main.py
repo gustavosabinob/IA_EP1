@@ -4,138 +4,79 @@
 """
 from sklearn.neural_network import MLPClassifier #implementa o MLP
 from sklearn.model_selection import train_test_split #define os conjuntos de treino e teste
-from sklearn.preprocessing import StandardScaler #normalizacao
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix #metricas
-from sklearn.model_selection import GridSearchCV #pre-fit. otimizador dos hyperparametros do MLPClassifier
-from mapper import Mapper
-from env import *
-
+from mapper import *
 import sys
 import pandas as pd
 import numpy as np
-
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 sns.set(style="darkgrid")
 np.set_printoptions(threshold=sys.maxsize)
+#configuar parametros para geração de gráficos
 
-files = Mapper().arquivos
-
-for file in files:
-
-    #sys.stdout = open(file['nome_problema'], "w")
-
-    train_df_temp = pd.read_csv('C:/Users/gusta/Desktop/USP/IA2/IA_EP1/data/' + file['nome_problema'] + '.csv', header=None)
+files = Mapper().arquivos #altera
 
 
+for file in files: #altera
 
-    if 'problem' in file['nome_problema']:
-        train_df = train_df_temp.drop(labels=2, axis=1)
-    else:
-        train_df = train_df_temp.drop(labels=63, axis=1)
+    train_df_temp = pd.read_csv('C:/Users/Matheus/Documents/GitHub/IA_EP1/data/' + file['nome_problema'] + '.csv', header=None)#altera
+    train_df = train_df_temp.drop(labels=63, axis=1)#altera
+    #DÚVIDA
+    targets = np.squeeze(TARGETS[file['nome_problema']])#altera
 
-    targets = np.squeeze(TARGETS[file['nome_problema']])
 
-    if file['nome_problema'] == 'caracteres-limpos' or file['nome_problema'] == 'caracteres-ruidos':
-        train_df_x, train_df_test, targets_y, targets_test = train_test_split(train_df, targets, test_size=7,
-                                                                              stratify=targets)
-        print('ta funcionando')
+    train_df_x, train_df_test, targets_y, targets_test = train_test_split(train_df, targets, test_size=7, stratify=targets)#altera
 
-        mlp_model = MLPClassifier(hidden_layer_sizes=70,
-                                  max_iter=10000,
-                                  alpha=1e-05,
-                                  activation='logistic',
-                                  solver='sgd',
-                                  learning_rate='adaptive',
-                                  learning_rate_init=0.6,
-                                  tol=1e-07,
-                                  verbose=True)
-        MLP_fit = mlp_model.fit(train_df_x, targets_y)
+    mlp_model = MLPClassifier(hidden_layer_sizes=63,#altera
+                              max_iter=10000,
+                              alpha=1e-05,
+                              activation='logistic',
+                              solver='sgd',
+                              learning_rate='adaptive',
+                              learning_rate_init=0.6,
+                              tol=1e-07,
+                              verbose=True)
+    #CRIA O MLP
 
-        print()
-        print('PARAMETROS DE INICIALIZACAO DA REDE \n NUMERO DE NEURONIOS \n')
-        print(f'Camada de Entrada: 63')
-        print(f'Camada Escondida: {mlp_model.hidden_layer_sizes}')
-        print(f'Camada de Saida: {mlp_model.n_outputs_}\n')
+    MLP_fit = mlp_model.fit(train_df_x, targets_y)#altera
+    #ENCAIXA O MODELO DE DADOS x COM O ALVO y
 
-        print('PARAMETROS DE CONFIGURACAO DA REDE')
-        print(f'Numero de Epocas: {mlp_model.n_iter_}')
-        print(f'Funcao de Ativacao: {mlp_model.activation}')
-        print(f'Solver utilizado: {mlp_model.solver}')
-        print(f'Taxa de Aprendizado: {mlp_model.learning_rate}')
-        print(f'Taxa de Aprendizado Inicial: {mlp_model.learning_rate_init}')
-        print(f'Tolerancia: {mlp_model.tol}')
-        print(f'Penalidade: {mlp_model.alpha}\n')
+    print()
+    print('PARAMETROS DE INICIALIZACAO DA REDE \n NUMERO DE NEURONIOS \n')
+    print(f'Camada de Entrada: 63')
+    print(f'Camada Escondida: {mlp_model.hidden_layer_sizes}')
+    print(f'Camada de Saida: {mlp_model.n_outputs_}\n')
 
-        print('PARAMETROS FINAIS DA REDE')
-        ###é uma lista de matrizes de peso, em que a matriz de peso no índice i representa os pesos entre a camada i e a camada i + 1.
-        print(f'Pesos Camada de Entrada: \n{mlp_model.coefs_[0]}')
-        print(f'Pesos Camada de Saida: \n{mlp_model.coefs_[1]}')
-        ###é uma lista de vetores de bias, em que o vetor no índice i representa os valores de bias adicionados à camada i + 1.
-        print(f'Bias Camada de Entrada: \n{mlp_model.intercepts_[0]}')
-        print(f'Bias Camada de Saida: \n{mlp_model.intercepts_[1]}\n')
+    print('PARAMETROS DE CONFIGURACAO DA REDE')
+    print(f'Numero de Epocas: {mlp_model.n_iter_}')
+    print(f'Funcao de Ativacao: {mlp_model.activation}')
+    print(f'Solver utilizado: {mlp_model.solver}')
+    print(f'Taxa de Aprendizado: {mlp_model.learning_rate}')
+    print(f'Taxa de Aprendizado Inicial: {mlp_model.learning_rate_init}')
+    print(f'Tolerancia: {mlp_model.tol}')
+    print(f'Penalidade: {mlp_model.alpha}\n')
 
-        print('METRICAS')
-        predictions_proba = mlp_model.predict_proba(train_df_test)
-        predictions = mlp_model.predict(train_df_test)
-        print(f'ACURACIA: {accuracy_score(targets_test, predictions)}')
+    print('PARAMETROS FINAIS DA REDE')
+    ###é uma lista de matrizes de peso, em que a matriz de peso no índice i representa os pesos entre a camada i e a camada i + 1.
+    print(f'Pesos Camada de Entrada: \n{mlp_model.coefs_[0]}')
+    print(f'Pesos Camada de Saida: \n{mlp_model.coefs_[1]}')
+    ###é uma lista de vetores de bias, em que o vetor no índice i representa os valores de bias adicionados à camada i + 1.
+    print(f'Bias Camada de Entrada: \n{mlp_model.intercepts_[0]}')
+    print(f'Bias Camada de Saida: \n{mlp_model.intercepts_[1]}\n')
+
+    print('METRICAS')
+    predictions_proba = mlp_model.predict_proba(train_df_test)
+    predictions = mlp_model.predict(train_df_test)
+    print(f'ACURACIA: {accuracy_score(targets_test, predictions)}')
 
         ##curva de erro x iteracao
         # print('--- ERRO X ITERACAO ---\nCurva do erro calculado em funcao da perda x iteracao.\n')
         # loss_curve = pd.DataFrame(mlp_model.loss_curve_)
         # graph = sns.relplot(ci=None, kind="line", data=loss_curve)
         # graph
-        # gg(loss_curve, aes(x='iterations', y='loss')) + gg.geom_line()
-
-    else:
-        # train_df_x, train_df_test, targets_y, targets_test = train_test_split(train_df, targets, test_size=2,
-        #                                                                       stratify=targets)
-
-        mlp_model = MLPClassifier(hidden_layer_sizes=2,
-                                  max_iter=10000,
-                                  alpha=1e-05,
-                                  activation='logistic',
-                                  solver='sgd',
-                                  learning_rate='adaptive',
-                                  learning_rate_init=0.5,
-                                  tol=1e-07,
-                                  verbose=True)
-
-        MLP_fit = mlp_model.fit(train_df, targets)
-
-        print('PARAMETROS DE INICIALIZACAO DA REDE\nNUMERO DE NEURONIOS ')
-        print(f'Camada de Entrada: 2')
-        print(f'Camada Escondida: {mlp_model.hidden_layer_sizes}')
-        print(f'Camada de Saida: {mlp_model.n_outputs_}\n')
-
-        print('--- PARAMETROS DE CONFIGURACAO DA REDE ---')
-        print(f'Numero de Epocas: {mlp_model.n_iter_}')
-        print(f'Funcao de Ativacao: {mlp_model.activation}')
-        print(f'Solver utilizado: {mlp_model.solver}')
-        print(f'Taxa de Aprendizado: {mlp_model.learning_rate}')
-        print(f'Taxa de Aprendizado Inicial: {mlp_model.learning_rate_init}')
-        print(f'Tolerancia: {mlp_model.tol}')
-        print(f'Alpha: {mlp_model.alpha}\n')
-
-        print('PARAMETROS FINAIS DA REDE')
-        ###é uma lista de matrizes de peso, em que a matriz de peso no índice i representa os pesos entre a camada i e a camada i + 1.
-        print(f'Pesos Camada de Entrada: \n{mlp_model.coefs_[0]}')
-        print(f'PESOS Camada de Saida: \n{mlp_model.coefs_[1]}')
-        ###é uma lista de vetores de bias, em que o vetor no índice i representa os valores de bias adicionados à camada i + 1.
-        print(f'Bias Camada de Entrada: \n{mlp_model.intercepts_[0]}')
-        print(f'BIAS Camada de Saida: \n{mlp_model.intercepts_[1]}\n')
-
-        print('METRICAS')
-        predictions_proba = mlp_model.predict_proba(train_df)
-        predictions = mlp_model.predict(train_df)
-        print(f'ACURACIA: {accuracy_score(targets, predictions)}\n')
-
-        ##curva de erro x iteracao
-        # print('--- ERRO X ITERACAO ---\nCurva do erro calculado em funcao da perda x iteracao.\n')
-        # loss_curve = pd.DataFrame(mlp_model.loss_curve_)
-        # graph = sns.relplot(ci=None, kind="line", data=loss_curve)
-        # graph
-        sys.stdout.close()
+        # sys.stdout.close()
         # gg(loss_curve, aes(x='iterations', y='loss')) + gg.geom_line()
 
     ## ESTIMADOR UTILIZADO PARA DEFINIR A MELHOR CONFIGURACAO DA REDE

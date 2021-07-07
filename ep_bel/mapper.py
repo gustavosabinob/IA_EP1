@@ -10,8 +10,63 @@
 """
 
 import csv
-from env import ARQUIVOS_PARA_TREINO, ARQUIVOS_PARA_TESTE
 
+# Abaixo nomeamos os arquivos que são utilizados para treinar a rede neural
+ARQUIVOS_PARA_TREINO = [#'problemAND.csv', 'problemOR.csv', 'problemXOR.csv',#altera
+                        'caracteres-limpos.csv', 'caracteres-ruidos.csv']
+# ARQUIVOS_PARA_TREINO = ['caracteres-limpos.csv']
+
+# Abaixo nomeamos os arquivos que são utilizados para testar a rede neural
+ARQUIVOS_PARA_TESTE = ['caracteres-ruidos.csv']#altera
+
+TARGETS = {#altera
+    'caracteres-ruidos': [
+        [1, 0, 0, 0, 0, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0, 0],
+        [0, 0, 0, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0, 0],
+        [0, 0, 0, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0, 0],
+        [0, 0, 0, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 0, 1]
+    ],
+    'caracteres-limpos': [
+        [1, 0, 0, 0, 0, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0, 0],
+        [0, 0, 0, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0, 0],
+        [0, 0, 0, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0, 0],
+        [0, 0, 0, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 0, 1]
+    ]
+}
 
 class Mapper:
     def __init__(self):
@@ -19,28 +74,28 @@ class Mapper:
         self.arquivos_teste = self.get_test_file()
 
     @property
-    def arquivos(self):
+    def arquivos(self):#altera
         return self._arquivos
 
     @arquivos.setter
-    def arquivos(self, value):
+    def arquivos(self, value):#altera
         self._arquivos = value
 
-    def get_multiple_files(self):
+    def get_multiple_files(self):#altera
         result = []
         for arquivo in ARQUIVOS_PARA_TREINO:
             result.append(self.handle_input(arquivo))
         return result
 
-    def get_test_file(self):
+    def get_test_file(self):#altera
         result = []
         for arquivo in ARQUIVOS_PARA_TESTE:
             result.append(self.handle_input(arquivo))
         return result
 
-    def handle_input(self, filename):
+    def handle_input(self, filename):#altera
         inputs = []
-        caminho_arquivo = 'C:/Users/gusta/Desktop/USP/IA2/IA_EP1/data/' + filename
+        caminho_arquivo = 'C:/Users/Matheus/Documents/GitHub/IA_EP1/data/' + filename
         with open(caminho_arquivo, 'rt', encoding="utf-8-sig") as data:
             dados_arquivo = csv.reader(data)
 
@@ -57,7 +112,7 @@ class Mapper:
                       'inputs': inputs}
         return result
 
-    def get_target(self, target):
+    def get_target(self, target):#altera
         dict = {
             'A': [1, 0, 0, 0, 0, 0, 0],
             'B': [0, 1, 0, 0, 0, 0, 0],
