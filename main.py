@@ -3,6 +3,7 @@
     treinamento, quanto para sua fase de teste
     Classe que implementa o algoritmo Multi-layer Perceptron (MLP).
 """
+from pandas import DataFrame
 from sklearn.neural_network import MLPClassifier #implementa o MLP
 from sklearn.model_selection import train_test_split #define os conjuntos de treino e teste
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix #metricas
@@ -10,8 +11,11 @@ from data_set import *
 import sys
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib as plt
 import seaborn as sns
+#from plotnine import *
+#from plotnine.data import mpg
+
 
 sns.set(style="darkgrid")
 np.set_printoptions(threshold=sys.maxsize)
@@ -72,13 +76,18 @@ for arquivo in arquivos:
     predictions = mlp.predict(treinador_test)
     print(f'ACURACIA: {accuracy_score(objetivo_test, predictions)}')
 
-        ##curva de erro x iteracao
-        # print('--- ERRO X ITERACAO ---\nCurva do erro calculado em funcao da perda x iteracao.\n')
-        # loss_curve = pd.DataFrame(mlp.loss_curve_)
-        # graph = sns.relplot(ci=None, kind="line", data=loss_curve)
-        # graph
-        # sys.stdout.close()
-        # gg(loss_curve, aes(x='iterations', y='loss')) + gg.geom_line()
+        #curva de erro x iteracao
+    print('--- ERRO X ITERACAO ---\nCurva do erro calculado em funcao da perda x iteracao.\n')
+    loss_curve = pd.DataFrame(mlp.loss_curve_)
+    sns.relplot(kind="line", data=loss_curve)
+    
+    #plt.pyplot.pie(loss_curve)
+    #sns.lineplot(loss_curve)
+    #graph = sns.FacetGrid(loss_curve)
+    #raph
+    #graph.map_dataframe(sns.scatterplot, x="iterations", y='loss')
+    #sys.stdout.close()
+    #plt.pyplot.plot('iterations', 'loss', data=loss_curve) #+ gg.geom_line()
 
     ## ESTIMADOR UTILIZADO PARA DEFINIR A MELHOR CONFIGURACAO DA REDE
     # ###define os parametros que serao combinados pelo GridSearch
