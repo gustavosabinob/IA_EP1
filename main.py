@@ -1,174 +1,125 @@
-#classe responsável pela implementação, treinamento e teste do algoritmo MLP
-
-from sklearn.neural_network import MLPClassifier
-
-# X = [[0., 0.], [1., 1.]]
-# y = [0, 1]
-# clf = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
-# clf.fit(X, y)
-# MLPClassifier(alpha=1e-05, hidden_layer_sizes=(5, 2), random_state=1, solver='lbfgs')
-
 """
     Classe responsavel por por controlar toda a execução do algoritmo Multi-layer Perceptron, tanto para sua fase
     treinamento, quanto para sua fase de teste
+    Classe que implementa o algoritmo Multi-layer Perceptron (MLP).
 """
-from sklearn.model_selection import train_test_split  # define os conjuntos de treino e teste
-import sklearn.metrics as metrics
-
+from sklearn.neural_network import MLPClassifier #implementa o MLP
+from sklearn.model_selection import train_test_split #define os conjuntos de treino e teste
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix #metricas
+from data_set import *
 import sys
 import pandas as pd
 import numpy as np
-import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 sns.set(style="darkgrid")
 np.set_printoptions(threshold=sys.maxsize)
+#configuar parametros para geração de gráficos
 
-start = datetime.datetime.now()
+files = Mapper().arquivos #altera
 
-train_df = pd.read_csv('data\\caracteres-limpo.csv', header=None)
-test_df = pd.read_csv('data\\caracteres-ruido.csv', header=None)
-test2_df = pd.read_csv('data\\caracteres_ruido20.csv', header=None)
-#train_targets = pd.read_csv('folds\\train_targets.csv', header=None)
-#test_targets = pd.read_csv('folds\\test_targets.csv', header=None)
 
-def init_mlp(neuronio, taxa, epoca, early_stopping=False):
-    # taxa de aprendizado adaptativa, talvez tenha que mudar porconta da estrategia em grade
-    config_name =f"{neuronio}_{taxa}_{epoca}_es_{early_stopping}"
-    #sys.stdout = open(f"results\\{config_name}", "w")
+for file in files: #altera
 
-    mlp_model = MLPClassifier(hidden_layer_sizes=neuronio,
-                              max_iter=epoca,
+    entrada_treino = pd.read_csv('C:/Users/gusta/Desktop/USP/IA2/IA_EP1/data/' + file['nome_problema'] + '.csv', header=None) #alterar para o caminho da pasta de dados para treino
+    treinador = entrada_treino.drop(labels=63, axis=1)
+    #DÚVIDA
+    objetivo = np.squeeze(result[file['nome_problema']])
+
+
+    treinador_x, treinador_test, objetivo_y, objetivo_test = train_test_split(treinador, objetivo, test_size=7, stratify=objetivo)#altera
+
+    mlp = MLPClassifier(hidden_layer_sizes=63,
+                              max_iter=10000,
                               alpha=1e-05,
                               activation='logistic',
                               solver='sgd',
                               learning_rate='adaptive',
-                              learning_rate_init=taxa,
+                              learning_rate_init=0.6,
                               tol=1e-07,
-                              early_stopping=early_stopping)
-    mlp_model.fit(train_df,train_df)
+                              verbose=True)
+    #CRIA O MLP
 
-    print('PARAMETROS DE INICIALIZACAO DA REDE\nNUMERO DE NEURONIOS ')
-    print(f'Camada de Entrada: ',neuronio)
-    print(f'Camada Escondida: {mlp_model.hidden_layer_sizes}')
-    print(f'Camada de Saida: {mlp_model.n_outputs_}\n')
+    MLP_fit = mlp.fit(treinador_x, objetivo_y)#altera
+    #ENCAIXA O MODELO DE DADOS x COM O ALVO y
 
-    print('--- PARAMETROS DE CONFIGURACAO DA REDE ---')
-    #print(f'Numero de Epocas: {mlp_model.n_iter_}')
-    print(f'Taxa de Aprendizado: {mlp_model.learning_rate}')
-    print(f'Taxa de Aprendizado Inicial: {mlp_model.learning_rate_init}')
+    print()
+    print('PARAMETROS DE INICIALIZACAO DA REDE \n NUMERO DE NEURONIOS \n')
+    print(f'Camada de Entrada: 63')
+    print(f'Camada Escondida: {mlp.hidden_layer_sizes}')
+    print(f'Camada de Saida: {mlp.n_outputs_}\n')
 
-    print('METRICAS\n')
-    predictions = mlp_model.predict(test_df)
-    print("RESULTADOS:\n")
-    print(predictions)
+    print('PARAMETROS DE CONFIGURACAO DA REDE')
+    print(f'Numero de Epocas: {mlp.n_iter_}')
+    print(f'Funcao de Ativacao: {mlp.activation}')
+    print(f'Solver utilizado: {mlp.solver}')
+    print(f'Taxa de Aprendizado: {mlp.learning_rate}')
+    print(f'Taxa de Aprendizado Inicial: {mlp.learning_rate_init}')
+    print(f'Tolerancia: {mlp.tol}')
+    print(f'Penalidade: {mlp.alpha}\n')
 
-    return mlp_model
+    print('PARAMETROS FINAIS DA REDE')
+    ###é uma lista de matrizes de peso, em que a matriz de peso no índice i representa os pesos entre a camada i e a camada i + 1.
+    print(f'Pesos Camada de Entrada: \n{mlp.coefs_[0]}')
+    print(f'Pesos Camada de Saida: \n{mlp.coefs_[1]}')
+    ###é uma lista de vetores de bias, em que o vetor no índice i representa os valores de bias adicionados à camada i + 1.
+    print(f'Bias Camada de Entrada: \n{mlp.intercepts_[0]}')
+    print(f'Bias Camada de Saida: \n{mlp.intercepts_[1]}\n')
 
+    print('METRICAS')
+    predictions_proba = mlp.predict_proba(treinador_test)
+    predictions = mlp.predict(treinador_test)
+    print(f'ACURACIA: {accuracy_score(objetivo_test, predictions)}')
 
-def generate_loss_graph(mlp, graph_title):
-    loss_curve = pd.DataFrame(mlp.loss_curve_)
-    graph = sns.relplot(ci=None, kind="line", data=loss_curve)
-    graph.fig.suptitle(graph_title)
-    graph.savefig(f"results\\graphs\\{graph_title}.png")
+        ##curva de erro x iteracao
+        # print('--- ERRO X ITERACAO ---\nCurva do erro calculado em funcao da perda x iteracao.\n')
+        # loss_curve = pd.DataFrame(mlp.loss_curve_)
+        # graph = sns.relplot(ci=None, kind="line", data=loss_curve)
+        # graph
+        # sys.stdout.close()
+        # gg(loss_curve, aes(x='iterations', y='loss')) + gg.geom_line()
 
+    ## ESTIMADOR UTILIZADO PARA DEFINIR A MELHOR CONFIGURACAO DA REDE
+    # ###define os parametros que serao combinados pelo GridSearch
+    # parameter_space = {
+    #     'hidden_layer_sizes': [15, 20, 45, 63, 70],
+    #     'activation': ['relu', 'tanh', 'logistic'],
+    #     'solver': ['sgd', 'adam'],
+    #     'alpha': [0.00001, 0.0001, 0.001],
+    #     'learning_rate': ['constant' ,'adaptive'],
+    #     'learning_rate_init': [0.25, 0.5, 0.6, 0.8, 0.7],
+    #     'tol': [0.00001, 0.000001, 0.0001, 0.001, 0.01, 0.0000001]
+    # }
+    #
+    #mlp = MLPClassifier(max_iter = 10000)
+    #
+    # ##chamada que implementa o GridSearch
+    # clf = GridSearchCV(mlp, parameter_space, n_jobs=-1, cv=7)
+    #
+    # ##realiza o fit com para as combinacoes retornadas pelo GridSearch utilizando os parametros pre-definidos
+    # clf.fit(treinador_x, objetivo_y)
+    #
+    # ##log GridSearch
+    # print('Best estimator found:\n', clf.best_estimator_)
+    # print('Best parameters found:\n', clf.best_params_)
+    # print('Best index found:\n', clf.best_index_)
+    # print('Best score index found:\n', clf.best_score_)
+    # print('CV:\n', clf.cv)
+    # print('CV Result:\n', clf.cv_results_)
+    # print('Predict:\n', clf.predict)
+    # print('Error score:\n', clf.error_score)
+    # print('Param grid:\n', clf.param_grid)
+    # print('Multimetric:\n', clf.multimetric_)
 
-def generate_final_graphs(predictions):
-    # Confusion Matrix
-    fig, ax = plt.subplots()
-    sns.heatmap(metrics.confusion_matrix(test_df, predictions), annot=True,
-                ax=ax, fmt='d', cmap='Reds')
-    ax.set_title("Matriz de Confusão", fontsize=18)
-    ax.set_ylabel("Rótulo Verdadeiro")
-    ax.set_xlabel("Rótulo Previsto")
-    plt.tight_layout()
-    plt.savefig(f"results\\graphs\\best_mlp_confusion_matrix.png")
+    ### METRICAS PARTE3
+    ##matriz de confusao
+    # print(f'--- MATRIZ DE CONFUSAO ---\n{confusion_matrix(objetivo_test.argmax(axis=1), predictions.argmax(axis=1))}\n')
 
-    # Precision x Recall
-    precisions, recalls, thresholds = metrics.precision_recall_curve(test_df, predictions)
-    fig2, ax2 = plt.subplots(figsize=(12, 3))
-    plt.plot(thresholds, precisions[:-1], 'b--', label='Precisão')
-    plt.plot(thresholds, recalls[:-1], 'g-', label='Revocação')
-    plt.xlabel('Limiar de Decisão')
-    plt.legend(loc='center right')
-    plt.ylim([0, 1])
-    plt.title('Precisão x Revocação', fontsize=14)
-    plt.savefig(f"results\\graphs\\best_mlp_precision_recall.png")
+    ##classificador
+    # print(
+    #     f'--- OUTRAS METRICAS DO CLASSIFICADOR ---\n{classification_report(objetivo_test.argmax(axis=1), predictions.argmax(axis=1))}\n')
 
-    #  ROC
-    fpr, tpr, thresholds = metrics.roc_curve(test_df, predictions)
-    fig, ax = plt.subplots(figsize=(12, 4))
-    plt.plot(fpr, tpr, linewidth=2, label='Regressão Logística')
-    plt.plot([0, 1], [0, 1], 'k--')
-    plt.axis([0, 1, 0, 1])
-    plt.xlabel('Taxa de Falsos Positivos')
-    plt.ylabel('Taxa de Verdadeiros Positivos')
-    plt.legend(loc='lower right')
-    plt.title('Curva ROC', fontsize=14)
-    plt.savefig(f"results\\graphs\\best_mlp_roc_curve.png")
-
-    # Acurácia, comparativo com a acuracia do classification_report
-    accuracy = metrics.accuracy_score(test_df, predictions)
-    print(f'ACURACIA: {accuracy}\n')
-
-    report = metrics.classification_report(test_df, best_mlp_predictions)
-    print(f'Relatório de Classificação\n{report}\n')
-
-
-# generate_csv()
-
-# estrategia baseada em grade para testar a rede MLP
-max_accuracy = 0
-best_config = []
-best_mlp = None
-
-neuronios = [21]
-taxas = [0.3]
-epocas = [300]
-
-for neuronio in neuronios:
-    for taxa in taxas:
-        for epoca in epocas:
-            mlp_model = init_mlp(neuronio, taxa, epoca)
-            predictions = mlp_model.predict(test_df)
-            accuracy = metrics.accuracy_score(test_df, predictions)
-            if accuracy > max_accuracy:
-                max_accuracy = accuracy
-                best_config.extend([neuronio, taxa, epoca])
-                best_mlp = mlp_model
-
-graph_title = f"melhor_mlp_gráfico_erro_{best_config[0]}_{best_config[1]}_{best_config[2]}"
-#generate_loss_graph(best_mlp, graph_title)
-best_mlp_predictions = best_mlp.predict(test_df)
-
-# abaixo executamos o MLP com a estratégia de early stopping para a melhor
-# configuração encontrada entre cada combinação de hiperparâmetros
-best_mlp_early_stopping = init_mlp(best_config[0], best_config[1], best_config[2], True)
-es_graph_title = f"es_melhor_mlp_gráfico_erro_{best_config[0]}_{best_config[1]}_{best_config[2]}"
-#generate_loss_graph(best_mlp_early_stopping, es_graph_title)
-
-def NEW_generate_loss_graph(mlp, mlp_es):
-    loss_curve_best = pd.DataFrame(mlp.loss_curve_)
-    loss_curve_best_es = pd.DataFrame(mlp_es.loss_curve_)
-
-    plt.plot(loss_curve_best, 'g-', label='Treinamento')
-    plt.plot(loss_curve_best_es, 'b--', label='Validação')
-    plt.xlabel('Número de Épocas')
-    plt.legend(loc='center right')
-    plt.title('Treinamento x Validação', fontsize=14)
-    plt.savefig(f"results\\graphs\\train_validation_error.png")
-
-NEW_generate_loss_graph(best_mlp, best_mlp_early_stopping)
-
-
-
-# os gráficos são gerados para comparar a função do erro entre os dois modelos
-
-# report = metrics.classification_report(test_targets, best_mlp_predictions)
-# print(f'Relatório de Classificação\n{report}\n')
-
-generate_final_graphs(best_mlp_predictions)
-
-end = datetime.datetime.now()
-runtime = start - end
+##realiza a leitura do csv para pegar os dados para o MLP
+# treinador = pd.read_csv('../inputs/Part-1/caracteres-limpos.csv', header=None)
+# treinador = treinador.drop(labels=63, axis=1)

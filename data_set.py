@@ -12,14 +12,14 @@
 import csv
 
 # Abaixo nomeamos os arquivos que são utilizados para treinar a rede neural
-ARQUIVOS_PARA_TREINO = [#'problemAND.csv', 'problemOR.csv', 'problemXOR.csv',#altera
+conjunto_teste = [#'problemAND.csv', 'problemOR.csv', 'problemXOR.csv',#altera
                         'caracteres-limpos.csv', 'caracteres-ruidos.csv']
 # ARQUIVOS_PARA_TREINO = ['caracteres-limpos.csv']
 
 # Abaixo nomeamos os arquivos que são utilizados para testar a rede neural
-ARQUIVOS_PARA_TESTE = ['caracteres-ruidos.csv']#altera
+conjunto_treino = ['caracteres-ruidos.csv']#altera
 
-TARGETS = {#altera
+result = {#altera
     'caracteres-ruidos': [
         [1, 0, 0, 0, 0, 0, 0],
         [0, 1, 0, 0, 0, 0, 0],
@@ -83,19 +83,19 @@ class Mapper:
 
     def get_multiple_files(self):#altera
         result = []
-        for arquivo in ARQUIVOS_PARA_TREINO:
+        for arquivo in conjunto_treino:
             result.append(self.handle_input(arquivo))
         return result
 
     def get_test_file(self):#altera
         result = []
-        for arquivo in ARQUIVOS_PARA_TESTE:
+        for arquivo in conjunto_teste:
             result.append(self.handle_input(arquivo))
         return result
 
     def handle_input(self, filename):#altera
         inputs = []
-        caminho_arquivo = 'C:/Users/Brito/Documents/GitHub/IA_EP1/ep_bel/data/' + filename #alterar para o caminho da pasta de dados para treino
+        caminho_arquivo = 'C:/Users/gusta/Desktop/USP/IA2/IA_EP1/data/' + filename #alterar para o caminho da pasta de dados para treino
         with open(caminho_arquivo, 'rt', encoding="utf-8-sig") as data:
             dados_arquivo = csv.reader(data)
 
