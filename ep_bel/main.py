@@ -1,6 +1,7 @@
 """
     Classe responsavel por por controlar toda a execução do algoritmo Multi-layer Perceptron, tanto para sua fase
     treinamento, quanto para sua fase de teste
+    Classe que implementa o algoritmo Multi-layer Perceptron (MLP).
 """
 from sklearn.neural_network import MLPClassifier #implementa o MLP
 from sklearn.model_selection import train_test_split #define os conjuntos de treino e teste
@@ -21,15 +22,15 @@ files = Mapper().arquivos #altera
 
 for file in files: #altera
 
-    train_df_temp = pd.read_csv('C:/Users/Matheus/Documents/GitHub/IA_EP1/data/' + file['nome_problema'] + '.csv', header=None)#altera
-    train_df = train_df_temp.drop(labels=63, axis=1)#altera
+    entrada_treino = pd.read_csv('C:/Users/Brito/Documents/GitHub/IA_EP1/ep_bel/data/' + file['nome_problema'] + '.csv', header=None) #alterar para o caminho da pasta de dados para treino
+    treinador = entrada_treino.drop(labels=63, axis=1)
     #DÚVIDA
-    targets = np.squeeze(TARGETS[file['nome_problema']])#altera
+    objetivo = np.squeeze(TARGETS[file['nome_problema']])
 
 
-    train_df_x, train_df_test, targets_y, targets_test = train_test_split(train_df, targets, test_size=7, stratify=targets)#altera
+    treinador_x, treinador_test, objetivo_y, objetivo_test = train_test_split(treinador, objetivo, test_size=7, stratify=objetivo)#altera
 
-    mlp_model = MLPClassifier(hidden_layer_sizes=63,#altera
+    mlp = MLPClassifier(hidden_layer_sizes=63,
                               max_iter=10000,
                               alpha=1e-05,
                               activation='logistic',
@@ -40,40 +41,40 @@ for file in files: #altera
                               verbose=True)
     #CRIA O MLP
 
-    MLP_fit = mlp_model.fit(train_df_x, targets_y)#altera
+    MLP_fit = mlp.fit(treinador_x, objetivo_y)#altera
     #ENCAIXA O MODELO DE DADOS x COM O ALVO y
 
     print()
     print('PARAMETROS DE INICIALIZACAO DA REDE \n NUMERO DE NEURONIOS \n')
     print(f'Camada de Entrada: 63')
-    print(f'Camada Escondida: {mlp_model.hidden_layer_sizes}')
-    print(f'Camada de Saida: {mlp_model.n_outputs_}\n')
+    print(f'Camada Escondida: {mlp.hidden_layer_sizes}')
+    print(f'Camada de Saida: {mlp.n_outputs_}\n')
 
     print('PARAMETROS DE CONFIGURACAO DA REDE')
-    print(f'Numero de Epocas: {mlp_model.n_iter_}')
-    print(f'Funcao de Ativacao: {mlp_model.activation}')
-    print(f'Solver utilizado: {mlp_model.solver}')
-    print(f'Taxa de Aprendizado: {mlp_model.learning_rate}')
-    print(f'Taxa de Aprendizado Inicial: {mlp_model.learning_rate_init}')
-    print(f'Tolerancia: {mlp_model.tol}')
-    print(f'Penalidade: {mlp_model.alpha}\n')
+    print(f'Numero de Epocas: {mlp.n_iter_}')
+    print(f'Funcao de Ativacao: {mlp.activation}')
+    print(f'Solver utilizado: {mlp.solver}')
+    print(f'Taxa de Aprendizado: {mlp.learning_rate}')
+    print(f'Taxa de Aprendizado Inicial: {mlp.learning_rate_init}')
+    print(f'Tolerancia: {mlp.tol}')
+    print(f'Penalidade: {mlp.alpha}\n')
 
     print('PARAMETROS FINAIS DA REDE')
     ###é uma lista de matrizes de peso, em que a matriz de peso no índice i representa os pesos entre a camada i e a camada i + 1.
-    print(f'Pesos Camada de Entrada: \n{mlp_model.coefs_[0]}')
-    print(f'Pesos Camada de Saida: \n{mlp_model.coefs_[1]}')
+    print(f'Pesos Camada de Entrada: \n{mlp.coefs_[0]}')
+    print(f'Pesos Camada de Saida: \n{mlp.coefs_[1]}')
     ###é uma lista de vetores de bias, em que o vetor no índice i representa os valores de bias adicionados à camada i + 1.
-    print(f'Bias Camada de Entrada: \n{mlp_model.intercepts_[0]}')
-    print(f'Bias Camada de Saida: \n{mlp_model.intercepts_[1]}\n')
+    print(f'Bias Camada de Entrada: \n{mlp.intercepts_[0]}')
+    print(f'Bias Camada de Saida: \n{mlp.intercepts_[1]}\n')
 
     print('METRICAS')
-    predictions_proba = mlp_model.predict_proba(train_df_test)
-    predictions = mlp_model.predict(train_df_test)
-    print(f'ACURACIA: {accuracy_score(targets_test, predictions)}')
+    predictions_proba = mlp.predict_proba(treinador_test)
+    predictions = mlp.predict(treinador_test)
+    print(f'ACURACIA: {accuracy_score(objetivo_test, predictions)}')
 
         ##curva de erro x iteracao
         # print('--- ERRO X ITERACAO ---\nCurva do erro calculado em funcao da perda x iteracao.\n')
-        # loss_curve = pd.DataFrame(mlp_model.loss_curve_)
+        # loss_curve = pd.DataFrame(mlp.loss_curve_)
         # graph = sns.relplot(ci=None, kind="line", data=loss_curve)
         # graph
         # sys.stdout.close()
@@ -91,13 +92,13 @@ for file in files: #altera
     #     'tol': [0.00001, 0.000001, 0.0001, 0.001, 0.01, 0.0000001]
     # }
     #
-    #mlp_model = MLPClassifier(max_iter = 10000)
+    #mlp = MLPClassifier(max_iter = 10000)
     #
     # ##chamada que implementa o GridSearch
-    # clf = GridSearchCV(mlp_model, parameter_space, n_jobs=-1, cv=7)
+    # clf = GridSearchCV(mlp, parameter_space, n_jobs=-1, cv=7)
     #
     # ##realiza o fit com para as combinacoes retornadas pelo GridSearch utilizando os parametros pre-definidos
-    # clf.fit(train_df_x, targets_y)
+    # clf.fit(treinador_x, objetivo_y)
     #
     # ##log GridSearch
     # print('Best estimator found:\n', clf.best_estimator_)
@@ -113,12 +114,12 @@ for file in files: #altera
 
     ### METRICAS PARTE3
     ##matriz de confusao
-    # print(f'--- MATRIZ DE CONFUSAO ---\n{confusion_matrix(targets_test.argmax(axis=1), predictions.argmax(axis=1))}\n')
+    # print(f'--- MATRIZ DE CONFUSAO ---\n{confusion_matrix(objetivo_test.argmax(axis=1), predictions.argmax(axis=1))}\n')
 
     ##classificador
     # print(
-    #     f'--- OUTRAS METRICAS DO CLASSIFICADOR ---\n{classification_report(targets_test.argmax(axis=1), predictions.argmax(axis=1))}\n')
+    #     f'--- OUTRAS METRICAS DO CLASSIFICADOR ---\n{classification_report(objetivo_test.argmax(axis=1), predictions.argmax(axis=1))}\n')
 
 ##realiza a leitura do csv para pegar os dados para o MLP
-# train_df = pd.read_csv('../inputs/Part-1/caracteres-limpos.csv', header=None)
-# train_df = train_df.drop(labels=63, axis=1)
+# treinador = pd.read_csv('../inputs/Part-1/caracteres-limpos.csv', header=None)
+# treinador = treinador.drop(labels=63, axis=1)

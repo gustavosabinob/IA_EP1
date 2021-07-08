@@ -95,7 +95,7 @@ class Mapper:
 
     def handle_input(self, filename):#altera
         inputs = []
-        caminho_arquivo = 'C:/Users/Matheus/Documents/GitHub/IA_EP1/data/' + filename
+        caminho_arquivo = 'C:/Users/Brito/Documents/GitHub/IA_EP1/ep_bel/data/' + filename #alterar para o caminho da pasta de dados para treino
         with open(caminho_arquivo, 'rt', encoding="utf-8-sig") as data:
             dados_arquivo = csv.reader(data)
 
