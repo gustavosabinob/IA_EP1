@@ -12,14 +12,14 @@
 import csv
 
 # Abaixo nomeamos os arquivos que são utilizados para treinar a rede neural
-conjunto_teste = [#'problemAND.csv', 'problemOR.csv', 'problemXOR.csv',#altera
+conjunto_teste = [#'problemAND.csv', 'problemOR.csv', 'problemXOR.csv',
                         'caracteres-limpos.csv', 'caracteres-ruidos.csv']
 # ARQUIVOS_PARA_TREINO = ['caracteres-limpos.csv']
 
 # Abaixo nomeamos os arquivos que são utilizados para testar a rede neural
-conjunto_treino = ['caracteres-ruidos.csv']#altera
+conjunto_treino = ['caracteres-ruidos.csv']
 
-result = {#altera
+resultado = {
     'caracteres-ruidos': [
         [1, 0, 0, 0, 0, 0, 0],
         [0, 1, 0, 0, 0, 0, 0],
@@ -70,37 +70,37 @@ result = {#altera
 
 class Mapper:
     def __init__(self):
-        self._arquivos = self.get_multiple_files()
-        self.arquivos_teste = self.get_test_file()
+        self._arquivos = self.get_arquivos()
+        self.arquivos_teste = self.get_arquivo_de_teste()
 
     @property
-    def arquivos(self):#altera
+    def arquivos(self):
         return self._arquivos
 
     @arquivos.setter
-    def arquivos(self, value):#altera
+    def arquivos(self, value):
         self._arquivos = value
 
-    def get_multiple_files(self):#altera
-        result = []
+    def get_arquivos(self):
+        resultado = []
         for arquivo in conjunto_treino:
-            result.append(self.handle_input(arquivo))
-        return result
+            resultado.append(self.input(arquivo))
+        return resultado
 
-    def get_test_file(self):#altera
-        result = []
+    def get_arquivo_de_teste(self):
+        resultado = []
         for arquivo in conjunto_teste:
-            result.append(self.handle_input(arquivo))
-        return result
+            resultado.append(self.input(arquivo))
+        return resultado
 
-    def handle_input(self, filename):#altera
+    def input(self, filename):
         inputs = []
-        caminho_arquivo = 'C:/Users/gusta/Desktop/USP/IA2/IA_EP1/data/' + filename #alterar para o caminho da pasta de dados para treino
+        caminho_arquivo = 'C:/Users/Matheus/Documents/GitHub/IA_EP1/data/' + filename #alterar para o caminho da pasta de dados para treino
         with open(caminho_arquivo, 'rt', encoding="utf-8-sig") as data:
             dados_arquivo = csv.reader(data)
 
             for linha in dados_arquivo:
-                target = self.get_target(linha[-1])
+                target = self.get_alvo(linha[-1])
                 sample = linha[:-1]
                 inputs.append({
                     'target_description': linha[-1],
@@ -108,11 +108,11 @@ class Mapper:
                     'sample': sample
                 })
 
-            result = {'nome_problema': filename[:-4],
+            resultado = {'nome_problema': filename[:-4],
                       'inputs': inputs}
-        return result
+        return resultado
 
-    def get_target(self, target):#altera
+    def get_alvo(self, target):
         dict = {
             'A': [1, 0, 0, 0, 0, 0, 0],
             'B': [0, 1, 0, 0, 0, 0, 0],

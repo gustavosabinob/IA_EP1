@@ -17,18 +17,18 @@ sns.set(style="darkgrid")
 np.set_printoptions(threshold=sys.maxsize)
 #configuar parametros para geração de gráficos
 
-files = Mapper().arquivos #altera
+arquivos = Mapper().arquivos
 
 
-for file in files: #altera
+for arquivo in arquivos:
 
-    entrada_treino = pd.read_csv('C:/Users/gusta/Desktop/USP/IA2/IA_EP1/data/' + file['nome_problema'] + '.csv', header=None) #alterar para o caminho da pasta de dados para treino
+    entrada_treino = pd.read_csv('C:/Users/Matheus/Documents/GitHub/IA_EP1/data/' + arquivo['nome_problema'] + '.csv', header=None) #alterar para o caminho da pasta de dados para treino
     treinador = entrada_treino.drop(labels=63, axis=1)
     #DÚVIDA
-    objetivo = np.squeeze(result[file['nome_problema']])
+    objetivo = np.squeeze(resultado[arquivo['nome_problema']])
 
 
-    treinador_x, treinador_test, objetivo_y, objetivo_test = train_test_split(treinador, objetivo, test_size=7, stratify=objetivo)#altera
+    treinador_x, treinador_test, objetivo_y, objetivo_test = train_test_split(treinador, objetivo, test_size=7, stratify=objetivo)
 
     mlp = MLPClassifier(hidden_layer_sizes=63,
                               max_iter=10000,
