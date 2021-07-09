@@ -1,12 +1,7 @@
 """
     Classe responsavel por fazer o mapeamento dos arquivos .csv para teste e para treino da rede
     tratando as respostas esperadas para o problema e gerando dicionarios para melhor manipulá-los
-    Functions:
-        init(self): Inicia a leitura do arquivo.
-        handle_input: Funcao que le o arquivo .csv retornando um dicioncario de dados para ser usado na rede neural.
-        arquivo(self): Funcao que guarda o objeto do retorno da funcao 'handle_input' na variavel _arquivo.
-        arquivo(self,value): Funcao que 'seta' os valores do objeto guardado pela funcao 'arquivo(self)' na variavel _arquivo.
-        get_target(self, target): Funcao que retorna o valor esperado dentro da rede de acordo com o target alfanumerico
+
 """
 
 import csv
