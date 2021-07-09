@@ -35,7 +35,7 @@ for arquivo in arquivos:
     treinador_x, treinador_test, objetivo_y, objetivo_test = train_test_split(treinador, objetivo, test_size=7, stratify=objetivo)
 
     mlp = MLPClassifier(hidden_layer_sizes=63,
-                              max_iter=10000,
+                              max_iter=1000,
                               alpha=1e-05,
                               activation='logistic',
                               solver='sgd',
@@ -78,9 +78,23 @@ for arquivo in arquivos:
 
         #curva de erro x iteracao
     print('--- ERRO X ITERACAO ---\nCurva do erro calculado em funcao da perda x iteracao.\n')
-    loss_curve = pd.DataFrame(mlp.loss_curve_)
-    sns.relplot(kind="line", data=loss_curve)
-    
+
+    #import datetime
+    from datetime import datetime
+
+    def generate_loss_graph(mlp, graph_title):
+        loss_curve = pd.DataFrame(mlp.loss_curve_)
+        graph = sns.relplot(ci=None, kind="line", data=loss_curve)
+        graph.fig.suptitle(graph_title)
+        date = datetime.now().strftime("%Y%m%d_%H%M%S")
+        graph.savefig(f"results\\graphs\\{graph_title}_{date}.png")
+
+
+    generate_loss_graph(mlp, 'curva de erro X iteração')
+    #loss_curve = pd.DataFrame(mlp.loss_curve_)
+    #graph = sns.relplot(ci=None, kind="line", data=loss_curve)
+
+    #graph.savefig(f"results\\graphs\\{graph_title}.png")
     #plt.pyplot.pie(loss_curve)
     #sns.lineplot(loss_curve)
     #graph = sns.FacetGrid(loss_curve)
@@ -123,7 +137,7 @@ for arquivo in arquivos:
 
     ### METRICAS PARTE3
     ##matriz de confusao
-    # print(f'--- MATRIZ DE CONFUSAO ---\n{confusion_matrix(objetivo_test.argmax(axis=1), predictions.argmax(axis=1))}\n')
+    print(f'--- MATRIZ DE CONFUSAO ---\n{confusion_matrix(objetivo_test.argmax(axis=1), predictions.argmax(axis=1))}\n')
 
     ##classificador
     # print(
